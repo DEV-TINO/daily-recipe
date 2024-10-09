@@ -5,20 +5,12 @@
     <div></div>
   </div>
   <div class="margin-90px"></div>
-  <MiddleContentsVue/>
-  <MiddleContentsVue/>
-  <MiddleContentsVue/>
-  <MiddleContentsVue/>
-  <MiddleContentsVue/>
-  <MiddleContentsVue/>
-  <MiddleContentsVue/>
-  <MiddleContentsVue/>
-  <MiddleContentsVue/>
+  <ResultContentsVue v-for="index in 9" :key="index"/>
   <div class="margin-90px"></div>
 </template>
 
 <script>
-import MiddleContentsVue from '@/components/MiddleContents.vue'
+import ResultContentsVue from '@/components/ResultContents.vue'
 export default {
   methods: {
     handleClickBackToHome() {
@@ -43,7 +35,7 @@ export default {
     },
   },
   components: {
-    MiddleContentsVue: MiddleContentsVue,
+    ResultContentsVue: ResultContentsVue,
   },
   props: {
     mode: {
@@ -62,6 +54,7 @@ export default {
   box-sizing: border-box;
   left: 0;
   position: fixed;
+  z-index: 100;
   display: grid;
   grid-template-columns: 17px 1fr 17px;
   font-size: 24px;
