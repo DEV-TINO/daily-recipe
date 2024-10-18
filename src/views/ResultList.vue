@@ -1,34 +1,37 @@
 <template>
   <div class="top-nav-bar">
-    <div @click="handleClickgoToParentOrRoot()">&lt;</div>
-    <div class="result-title">{{mode}}</div>
+    <div @click="handleClickgoToParent()">&lt;</div>
+    <div v-if="resultTitle == '검색결과'" class="result-title">{{ searchQuery }} ({{ displayedItems.length }})</div>
+    <div v-else class="result-title">{{ mode }}</div>
     <div></div>
   </div>
   <div class="margin-90px"></div>
-  <MiddleContentsVue/>
-  <MiddleContentsVue/>
-  <MiddleContentsVue/>
-  <MiddleContentsVue/>
-  <MiddleContentsVue/>
-  <MiddleContentsVue/>
-  <MiddleContentsVue/>
-  <MiddleContentsVue/>
-  <MiddleContentsVue/>
+  <RecipeListItemVue v-for="(value, index) in displayedItems" :key="index" @click="handleClickGoToDetail(value.id)" :previewData="value"/>
   <div class="margin-90px"></div>
 </template>
 
 <script>
-import MiddleContentsVue from '@/components/MiddleContents.vue'
+import RecipeListItemVue from '@/components/RecipeListItem.vue'
+import axios from 'axios';
 export default {
+  mounted() {
+    axios.get('/mockdata/index.json')
+      .then(response => {
+        this.recipeList = response.data;
+      })
+      .catch(error => {
+        console.error("리스트를 가져오는데 실패했습니다.", error);
+      });
+  },
+  data(){
+    return {
+      resultTitle: this.mode || '',
+      searchQuery: this.query || '',
+      recipeList: []
+    }
+  },
   methods: {
-    handleClickBackToHome() {
-      this.$router.push("/");
-    },
-    goToParent() {
-      const parentPath = this.$route.path.split('/').slice(0, -1).join('/');
-      this.$router.push(parentPath);
-    },
-    handleClickgoToParentOrRoot() {
+    handleClickgoToParent() {
       const currentPath = this.$route.path;
       // 현재 경로를 '/'로 분할하고 마지막 경로를 제거
       const parentPath = currentPath.split('/').slice(0, -1).join('/');
@@ -41,15 +44,34 @@ export default {
         this.$router.push('/');
       }
     },
+    handleClickGoToDetail(recipeName) {
+      const detailPath = this.$route.path+'/detail/'+recipeName;
+      this.$router.push(detailPath);
+    },
   },
   components: {
-    MiddleContentsVue: MiddleContentsVue,
+    RecipeListItemVue: RecipeListItemVue,
   },
   props: {
     mode: {
       type: String,
+      required: true,
     },
+    query: {
+      type: String,
+      required: false,
+    }
   },
+  computed: {
+    displayedItems() {
+      if (this.mode === '검색결과'){
+        return this.recipeList.filter(item =>
+          item.title.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
+      }
+      return this.recipeList;
+    }
+  }
 }
 </script>
 
@@ -62,6 +84,7 @@ export default {
   box-sizing: border-box;
   left: 0;
   position: fixed;
+  z-index: 100;
   display: grid;
   grid-template-columns: 17px 1fr 17px;
   font-size: 24px;
